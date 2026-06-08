@@ -13,6 +13,18 @@ Build cuda_11.7.r11.7/compiler.31442593_0
 
 - GPU: NVIDIA A6000
 
+## Solution description
+
+This project uses an asynchronous parallel reinforcement learning pipeline for multi-floor object navigation. Multiple data sampling processes are launched independently with `python -m vlfm.run`; each process interacts with a Habitat environment and continuously generates RL transitions in the form of `(state, action, reward, next_state, terminal)`.
+
+The sampling processes do not train the policy directly. Instead, they write transitions into the shared replay buffer directory `sac_buffer_data_multi_process/`. At the same time, each RL step creates a step/reward marker file in `main_process_info/step_rewards/`, which provides a lightweight progress signal for the main training process.
+
+The main training process is launched separately with `python train_main_process.py`. It polls the step/reward markers and, whenever the number of newly collected samples reaches `delta_steps`, loads batches from `sac_buffer_data_multi_process/` and updates the SACD actor-critic policy. After each training update, the newest actor and critic checkpoints are saved under `Models_train_PPO_intra/policy/multi_process_sac/`.
+
+Because data collection and training are decoupled through shared files, sampling does not need to wait for training to finish, and training does not block the Habitat workers. When a data sampling process detects a newer actor checkpoint, it hot-loads the updated actor and continues collecting data with the latest policy.
+
+![Asynchronous parallel reinforcement learning pipeline](pic1.png)
+
 ## Quick start
 ### 1. Create the Conda environment
 
