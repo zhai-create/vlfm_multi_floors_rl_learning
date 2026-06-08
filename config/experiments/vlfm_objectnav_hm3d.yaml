@@ -1,0 +1,129 @@
+# @package _global_
+
+# Copyright (c) 2023 Boston Dynamics AI Institute LLC. All rights reserved.
+
+defaults:
+  - /habitat_baselines: habitat_baselines_rl_config_base
+  - /benchmark/nav/objectnav: object_hm3d
+  - /habitat/task/lab_sensors:
+      - base_explorer
+      - compass_sensor
+      - gps_sensor
+      - heading_sensor
+      - frontier_sensor
+  - /habitat/task/measurements:
+    - frontier_exploration_map
+    - traveled_stairs
+  - /habitat_baselines/rl/policy: vlfm_policy
+  - _self_
+
+habitat:
+  simulator:
+    agents:
+      main_agent:
+        sim_sensors:
+          rgb_sensor:
+            hfov: 79
+          depth_sensor:
+            hfov: 79
+          semantic_sensor:
+            hfov: 79
+
+  environment:
+    max_episode_steps: 500
+    iterator_options:
+      max_scene_repeat_steps: 50000
+  task:
+    success_reward: 2.5
+    slack_reward: -1e-3
+    lab_sensors:
+      base_explorer:
+        turn_angle: 30
+        fov: 79
+
+    measurements:
+        success:
+          type: Success
+          success_distance: 1.0
+          # success_distance: 0.2
+
+habitat_baselines:
+  evaluate: True
+  eval_ckpt_path_dir: data/dummy_policy.pth
+  num_environments: 1
+  load_resume_state_config: False
+
+  torch_gpu_id: 0
+  tensorboard_dir: "tb"
+  # tensorboard_dir: "log_files/log_hm3d_v2/"
+  # video_dir: "video_dir_semantic_map_debug_train"
+  # video_dir: "video_dir_il_policy"
+  # video_dir: "video_dir_il_train_data"
+  # video_dir: "video_dir_il_train_all_complete_success_new_weighting_data_train_dataset_for_eval"\
+  # video_dir: "video_dir_sac_only_five_val_scene_no_need_closer_no_multi_navigate_frontier_and_process_no_multi_floor_all_true_dataset_rand_2"
+  # video_dir: "video_dir_sac_ascent_actor_gt_perception_multi_stairs_RL_train_frozen_model_18_no_nan_real_train_small_utd_process_0"
+  # video_dir: "video_dir_cross_train_process_4"
+  video_dir: "video_dir_cross_train_based_on_989_process_4"
+  # video_dir: "video_dir_cross_train_process_4"
+  test_episode_count: -1
+  checkpoint_folder: "data/new_checkpoints"
+  trainer_name: "vlfm"
+  num_updates: 270000
+  log_interval: 10
+  num_checkpoints: 100
+  # Force PyTorch to be single threaded as
+  # this improves performance considerably
+  force_torch_single_threaded: True
+
+  eval:
+    split: "train"
+    # split: "val"
+    # video_option: ["disk"]
+    video_option: [""]
+
+  rl:
+
+    policy:
+      name: "HabitatITMPolicyV2"
+
+    ppo:
+      # ppo params
+      clip_param: 0.2
+      ppo_epoch: 4
+      num_mini_batch: 2
+      value_loss_coef: 0.5
+      entropy_coef: 0.01
+      lr: 2.5e-4
+      eps: 1e-5
+      max_grad_norm: 0.2
+      num_steps: 64
+      use_gae: True
+      gamma: 0.99
+      tau: 0.95
+      use_linear_clip_decay: False
+      use_linear_lr_decay: False
+      reward_window_size: 50
+
+      use_normalized_advantage: False
+
+      hidden_size: 512
+
+    ddppo:
+      sync_frac: 0.6
+      # The PyTorch distributed backend to use
+      distrib_backend: NCCL
+      # Visual encoder backbone
+      pretrained_weights: data/ddppo-models/gibson-2plus-resnet50.pth
+      # Initialize with pretrained weights
+      pretrained: False
+      # Initialize just the visual encoder backbone with pretrained weights
+      pretrained_encoder: False
+      # Whether or not the visual encoder backbone will be trained.
+      train_encoder: True
+      # Whether or not to reset the critic linear layer
+      reset_critic: False
+
+      # Model parameters
+      backbone: resnet50
+      rnn_type: LSTM
+      num_recurrent_layers: 2
