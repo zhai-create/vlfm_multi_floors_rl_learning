@@ -19,7 +19,7 @@ Build cuda_11.7.r11.7/compiler.31442593_0
 This project uses Conda to manage dependencies. Please make sure that Conda or Miniconda has been installed on your machine.
 
 ```bash
-git clone https://github.com/your_name/your_project.git
+git clone https://github.com/zhai-create/vlfm_multi_floors_rl_learning.git
 cd vlfm_multi_floors_rl_learning
 
 conda env create -f environment.yaml
