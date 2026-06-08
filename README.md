@@ -73,5 +73,5 @@ We used asynchronous training, which means that the **data collection process** 
 
 | Data Collection Process | Data Collection Time per 100 Samples (s) |
 |:---:|:---:|
-| Single process | 327.7636311 |
-| Two processes | 172.5177751 |
+| Single process | 327.76 |
+| Two processes | 172.52 |
