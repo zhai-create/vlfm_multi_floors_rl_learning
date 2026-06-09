@@ -87,3 +87,4 @@ We used asynchronous training, which means that the **data collection process** 
 |:---:|:---:|
 | Single process | 327.76 |
 | Two processes | 172.52 |
+| Four processes | 90.81 |
